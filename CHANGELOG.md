@@ -4,6 +4,11 @@ Alle nennenswerten Änderungen an **Google Photos Dedupe** werden hier dokumenti
 
 ---
 
+## [V1.0.1] - 2026-11-19
+
+### Geändert
+- **Kein Chromium mehr:** Entfernt den `playwright install chromium`-Schritt und den Chromium-Fallback vollständig. Das Tool nutzt ausschließlich das bereits auf dem System installierte **Google Chrome** oder **Microsoft Edge** (`Auto (Chrome / Edge)`, `Google Chrome`, `Microsoft Edge`).
+
 ## [V1.0.0] - 2026-11-19
 
 ### Erstveröffentlichung

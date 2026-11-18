@@ -18,6 +18,14 @@ from .storage import DedupeStorage
 _PHOTO_KEY_RE = re.compile(r"/photo/([^/?#]+)")
 
 
+def resolve_browser_channels(choice: str = "auto") -> list[str]:
+    """Return Playwright system-browser channels to try (Chrome/Edge only, never bundled Chromium)."""
+    normalized = (choice or "auto").strip().lower()
+    if normalized == "msedge":
+        return ["msedge", "chrome"]
+    return ["chrome", "msedge"]
+
+
 def _human_sleep(seconds: float, stop_event: Optional[threading.Event] = None) -> bool:
     """Sleep with +/-20% jitter; returns False if interrupted by stop_event."""
     target = max(0.05, seconds * random.uniform(0.85, 1.20))
@@ -96,10 +104,10 @@ class BrowserWorker:
         self._page = None
         self._pw = None
 
-    def open_google_photos(self, use_system_chrome: bool = True) -> str:
-        return self.call(lambda: self._open_internal(use_system_chrome))
+    def open_google_photos(self, browser_choice: str = "auto") -> str:
+        return self.call(lambda: self._open_internal(browser_choice))
 
-    def _open_internal(self, use_system_chrome: bool) -> str:
+    def _open_internal(self, browser_choice: str) -> str:
         if self._ctx is not None and self._page is not None:
             try:
                 if not self._page.is_closed():
@@ -117,26 +125,24 @@ class BrowserWorker:
             "--no-default-browser-check",
         ]
         ctx: Optional[BrowserContext] = None
-        channels_to_try: list[Optional[str]] = ["chrome", "msedge", None] if use_system_chrome else [None, "chrome", "msedge"]
+        channels_to_try = resolve_browser_channels(browser_choice)
         for ch in channels_to_try:
             try:
-                kwargs: dict = {
-                    "user_data_dir": self.profile_dir,
-                    "headless": False,
-                    "args": launch_args,
-                    "viewport": {"width": 1280, "height": 880},
-                }
-                if ch is not None:
-                    kwargs["channel"] = ch
-                ctx = self._pw.chromium.launch_persistent_context(**kwargs)
+                ctx = self._pw.chromium.launch_persistent_context(
+                    user_data_dir=self.profile_dir,
+                    channel=ch,
+                    headless=False,
+                    args=launch_args,
+                    viewport={"width": 1280, "height": 880},
+                )
                 break
             except Exception:
                 ctx = None
 
         if ctx is None:
             raise RuntimeError(
-                "Kein kompatibler Browser gefunden (Chrome, Edge oder Playwright Chromium). "
-                "Bitte Chrome/Edge installieren oder 'playwright install chromium' ausführen."
+                "Weder Google Chrome noch Microsoft Edge wurde gefunden. "
+                "Bitte installiere Chrome oder Edge (unter Windows bereits vorinstalliert)."
             )
 
         self._ctx = ctx

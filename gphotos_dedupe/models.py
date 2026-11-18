@@ -87,4 +87,4 @@ class ScanConfig:
     action_delay_sec: float = 1.1       # Delay between individual clicks
     strictness: str = "balanced"        # "strict" | "balanced" | "loose"
     include_videos: bool = True
-    use_system_chrome: bool = True
+    browser_choice: str = "auto"        # "auto" | "chrome" | "msedge"

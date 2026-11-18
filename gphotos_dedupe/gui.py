@@ -106,7 +106,7 @@ class DedupeApp(tk.Tk):
         step1 = ttk.LabelFrame(top_grid, text=" Schritt 1 · Google Fotos Browser ", padding=10)
         step1.grid(row=0, column=0, sticky="nsew", padx=(0, 8))
 
-        self.use_chrome_var = tk.BooleanVar(value=True)
+        self.browser_var = tk.StringVar(value="Auto (Chrome / Edge)")
         ttk.Button(
             step1,
             text="1. Browser öffnen & anmelden",
@@ -117,7 +117,13 @@ class DedupeApp(tk.Tk):
         row1b = ttk.Frame(step1)
         row1b.pack(fill=tk.X)
         ttk.Button(row1b, text="Verbindung prüfen", command=self._on_check_login).pack(side=tk.LEFT, fill=tk.X, expand=True)
-        ttk.Checkbutton(row1b, text="System-Chrome nutzen", variable=self.use_chrome_var).pack(side=tk.LEFT, padx=(8, 0))
+        ttk.Combobox(
+            row1b,
+            textvariable=self.browser_var,
+            state="readonly",
+            width=20,
+            values=("Auto (Chrome / Edge)", "Google Chrome", "Microsoft Edge"),
+        ).pack(side=tk.LEFT, padx=(8, 0))
 
         self.conn_status_var = tk.StringVar(value="Status: Noch nicht geöffnet")
         ttk.Label(step1, textvariable=self.conn_status_var, style="Sub.TLabel", wraplength=320).pack(anchor="w", pady=(6, 0))
@@ -288,6 +294,11 @@ class DedupeApp(tk.Tk):
         }
         max_raw = self.max_scan_var.get()
         max_items = 0 if max_raw == "Unbegrenzt" else int(max_raw)
+        browser_map = {
+            "Auto (Chrome / Edge)": "auto",
+            "Google Chrome": "chrome",
+            "Microsoft Edge": "msedge",
+        }
         return ScanConfig(
             max_scan_items=max_items,
             scan_batch_size=max(5, int(self.scan_batch_var.get())),
@@ -299,7 +310,7 @@ class DedupeApp(tk.Tk):
             action_delay_sec=1.1,
             strictness=strict_map.get(self.strictness_var.get(), "balanced"),
             include_videos=self.include_videos_var.get(),
-            use_system_chrome=self.use_chrome_var.get(),
+            browser_choice=browser_map.get(self.browser_var.get(), "auto"),
         )
 
     def _set_busy(self, busy: bool) -> None:
@@ -322,9 +333,16 @@ class DedupeApp(tk.Tk):
         self.status_var.set("Stopp angefordert – laufender Schritt wird sauber beendet...")
 
     def _on_open_browser(self) -> None:
+        browser_map = {
+            "Auto (Chrome / Edge)": "auto",
+            "Google Chrome": "chrome",
+            "Microsoft Edge": "msedge",
+        }
+        choice = browser_map.get(self.browser_var.get(), "auto")
+
         def work() -> None:
             try:
-                url = self.worker.open_google_photos(self.use_chrome_var.get())
+                url = self.worker.open_google_photos(choice)
                 self.after(0, lambda: self.conn_status_var.set(f"Browser offen ({url[:42]}). Falls nötig anmelden, dann 'Verbindung prüfen'."))
             except Exception as exc:
                 self.after(0, lambda: messagebox.showerror("Browser-Fehler", str(exc)))

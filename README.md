@@ -7,7 +7,7 @@ Ein einsteigerfreundliches Desktop-Tool (Python + Playwright + GUI), das Duplika
 ## ✨ Features
 
 - **Kinderleichte Schritt-für-Schritt-GUI:** Große Buttons, klare Statusanzeigen, Nebeneinander-Vergleich mit Vorschaubildern, *Tauschen*- & *Überspringen*-Funktion.
-- **Kein eigenhändiges Treiber-Setup nötig:** Nutzt automatisch das auf Windows installierte **Google Chrome** oder **Microsoft Edge** (mit persistentem Profil für normalen Google-Login).
+- **Kein Chromium-Download nötig:** Nutzt ausschließlich dein bereits installiertes **Google Chrome** oder **Microsoft Edge** (wählbar in der GUI, mit eigenem persistenten Profil für normalen Google-Login).
 - **Zweistufiger Schutz gegen Blockaden (Batch-Bremse):**
   - Scannt das Mediathek-Raster in konfigurierbaren Paketen (Standard `40` + Pause) und speichert alles im lokalen SQLite-Cache (jederzeit pausier- & fortsetzbar).
   - Öffnet die Detail-Seitenleiste (`i`) **nur bei echten Duplikat-Kandidaten** in kleinen Paketen (`15` + Pause).
@@ -30,7 +30,7 @@ Ein einsteigerfreundliches Desktop-Tool (Python + Playwright + GUI), das Duplika
 ## 🐍 Start aus dem Quellcode (Windows)
 
 1. Repository herunterladen / klonen nach z. B. `GooglePhotosDedupe`.
-2. Doppelklick auf **`start.bat`** – richtet automatisch `.venv`, `requirements.txt` und Playwright ein und startet die GUI.
+2. Doppelklick auf **`start.bat`** – richtet `.venv` + `requirements.txt` ein (ohne Chromium-Download) und startet direkt die GUI mit Chrome oder Edge.
 
 Alternativ manuell:
 ```cmd

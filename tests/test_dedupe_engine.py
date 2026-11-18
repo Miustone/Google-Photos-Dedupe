@@ -4,6 +4,7 @@ import tempfile
 import unittest
 from PIL import Image, ImageDraw
 
+from gphotos_dedupe.browser_bot import resolve_browser_channels
 from gphotos_dedupe.hashing import compute_image_features, find_candidate_clusters, pair_similarity
 from gphotos_dedupe.metadata_parser import parse_aria_label, parse_date_string, populate_from_info_panel
 from gphotos_dedupe.models import MediaItem
@@ -143,6 +144,15 @@ class TestDedupeEngine(unittest.TestCase):
             store.mark_trashed([it], {"k1": "Unterlegen"})
             self.assertEqual(len(store.load_active_items()), 0)
             self.assertTrue(os.path.exists(store.trash_csv_path))
+
+    def test_browser_channels_use_only_chrome_or_edge_never_chromium(self):
+        self.assertEqual(resolve_browser_channels("auto"), ["chrome", "msedge"])
+        self.assertEqual(resolve_browser_channels("chrome"), ["chrome", "msedge"])
+        self.assertEqual(resolve_browser_channels("msedge"), ["msedge", "chrome"])
+        for mode in ("auto", "chrome", "msedge", ""):
+            channels = resolve_browser_channels(mode)
+            self.assertNotIn(None, channels)
+            self.assertTrue(all(ch in {"chrome", "msedge"} for ch in channels))
 
 
 if __name__ == "__main__":
