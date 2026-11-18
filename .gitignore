@@ -1,0 +1,22 @@
+# PyInstaller & Build artifacts
+build/
+dist/
+*.spec
+
+# Python cache & environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+
+# Local SQLite caches & logs
+*.db
+*.csv
+thumbs/
+chrome_profile/
+
+# IDE files
+.vscode/
+.idea/
